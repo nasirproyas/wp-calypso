@@ -41,7 +41,7 @@
 				"enzyme": "3.9.0",
 				"enzyme-adapter-react-16": "1.12.1",
 				"file-loader": "3.0.1",
-				"mini-css-extract-plugin-with-rtl": "github:Automattic/mini-css-extract-plugin-with-rtl",
+				"mini-css-extract-plugin-with-rtl": "github:Automattic/mini-css-extract-plugin-with-rtl#af1300db7027af8caa9a3015f54a34aec545cc54",
 				"node-sass": "4.11.0",
 				"postcss-custom-properties": "8.0.9",
 				"postcss-loader": "3.0.0",
@@ -64,6 +64,17 @@
 						"caniuse-lite": "^1.0.30000955",
 						"electron-to-chromium": "^1.3.122",
 						"node-releases": "^1.1.13"
+					}
+				},
+				"mini-css-extract-plugin-with-rtl": {
+					"version": "github:Automattic/mini-css-extract-plugin-with-rtl#af1300db7027af8caa9a3015f54a34aec545cc54",
+					"from": "github:Automattic/mini-css-extract-plugin-with-rtl#af1300d",
+					"bundled": true,
+					"dev": true,
+					"requires": {
+						"loader-utils": "^1.1.0",
+						"schema-utils": "^1.0.0",
+						"webpack-sources": "^1.1.0"
 					}
 				}
 			}
@@ -14291,16 +14302,6 @@
 			"version": "1.2.0",
 			"resolved": "https://registry.npmjs.org/mimic-fn/-/mimic-fn-1.2.0.tgz",
 			"integrity": "sha512-jf84uxzwiuiIVKiOLpfYk7N46TSy8ubTonmneY9vrpHNAnp0QBt2BxWV9dO3/j+BoVAb+a5G6YDPW3M5HOdMWQ=="
-		},
-		"mini-css-extract-plugin-with-rtl": {
-			"version": "github:Automattic/mini-css-extract-plugin-with-rtl#af1300db7027af8caa9a3015f54a34aec545cc54",
-			"from": "github:Automattic/mini-css-extract-plugin-with-rtl",
-			"dev": true,
-			"requires": {
-				"loader-utils": "^1.1.0",
-				"schema-utils": "^1.0.0",
-				"webpack-sources": "^1.1.0"
-			}
 		},
 		"minimalistic-assert": {
 			"version": "1.0.1",
