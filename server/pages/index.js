@@ -770,6 +770,23 @@ module.exports = function() {
 		res.send( pageHtml );
 	} );
 
+	// Landing pages for login
+	app.get( pathToRegExp( '/log-in' ), function( req, res ) {
+		const ctx = getDefaultContext( req );
+		attachBuildTimestamp( ctx );
+		attachHead( ctx );
+		attachI18n( ctx );
+
+		ctx.clientData = config.clientData;
+
+		const target = getBuildTargetFromRequest( req );
+
+		ctx.entrypoint = getFilesForEntrypoint( target, 'entry-login' );
+
+		const pageHtml = renderJsx( 'login', ctx );
+		res.send( pageHtml );
+	} );
+
 	sections
 		.filter( section => ! section.envId || section.envId.indexOf( config( 'env_id' ) ) > -1 )
 		.forEach( section => {
