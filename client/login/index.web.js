@@ -55,7 +55,15 @@ export default router => {
 			render
 		);
 
-		router( `/log-in/link/${ lang }`, setUpLocale, redirectLoggedIn, magicLogin, makeLayout );
+		router(
+			`/log-in/link/${ lang }`,
+			setUpLocale,
+			setSection( LOGIN_SECTION_DEFINITION ),
+			redirectLoggedIn,
+			magicLogin,
+			makeLayout,
+			render
+		);
 	}
 
 	if ( config.isEnabled( 'login/wp-login' ) ) {
