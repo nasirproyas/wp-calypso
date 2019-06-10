@@ -18,6 +18,7 @@ import language from 'state/ui/language/reducer';
 import route from 'state/ui/route/reducer';
 import masterbarVisibility from 'state/ui/masterbar-visibility/reducer';
 import section from 'state/ui/section/reducer';
+import layoutFocus from 'state/ui/layout-focus/reducer';
 import notices from 'state/notices/reducer';
 import i18n from 'state/i18n/reducer';
 
@@ -35,6 +36,7 @@ const reducer = combineReducers( {
 		route,
 		masterbarVisibility,
 		section,
+		layoutFocus,
 	} ),
 } );
 
