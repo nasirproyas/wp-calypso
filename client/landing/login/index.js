@@ -15,6 +15,9 @@ import createStore from './store';
 import { setupMiddlewares } from './common';
 import initLoginSection from 'login';
 
+// goofy import for environment badge, which is SSR'd
+import 'components/environment-badge/style.scss';
+
 // Create Redux store
 const store = createStore();
 
