@@ -2,6 +2,7 @@
  * Global polyfills
  */
 import 'boot/polyfills';
+import { hydrate } from 'controller/web-util';
 
 /**
  * External dependencies
@@ -30,4 +31,12 @@ page.exit( '*', ( context, next ) => {
 } );
 
 initLoginSection( page );
-page.start();
+
+page( '*', ( context, next ) => {
+	hydrate( context );
+	next();
+} );
+
+window.AppBoot = () => {
+	page.start();
+};

@@ -18,11 +18,10 @@ import {
 } from './controller';
 import { setShouldServerSideRenderLogin } from './ssr';
 import { setUpLocale, setSection, makeLayoutMiddleware } from 'controller/shared';
-import { redirectLoggedIn, render } from 'controller/web-util';
-import { MomentProvider } from 'components/localized-moment/context';
+import { redirectLoggedIn } from 'controller/web-util';
 import LayoutLoggedOut from 'layout/logged-out';
 
-const LOGIN_SECTION_DEFINITION = {
+export const LOGIN_SECTION_DEFINITION = {
 	name: 'login',
 	paths: [ '/log-in' ],
 	module: 'login',
@@ -34,9 +33,7 @@ const LOGIN_SECTION_DEFINITION = {
 const ReduxWrappedLayout = ( { store, primary, secondary, redirectUri } ) => {
 	return (
 		<ReduxProvider store={ store }>
-			<MomentProvider>
-				<LayoutLoggedOut primary={ primary } secondary={ secondary } redirectUri={ redirectUri } />
-			</MomentProvider>
+			<LayoutLoggedOut primary={ primary } secondary={ secondary } redirectUri={ redirectUri } />
 		</ReduxProvider>
 	);
 };
@@ -51,8 +48,7 @@ export default router => {
 			setSection( LOGIN_SECTION_DEFINITION ),
 			redirectLoggedIn,
 			magicLoginUse,
-			makeLayout,
-			render
+			makeLayout
 		);
 
 		router(
@@ -61,8 +57,7 @@ export default router => {
 			setSection( LOGIN_SECTION_DEFINITION ),
 			redirectLoggedIn,
 			magicLogin,
-			makeLayout,
-			render
+			makeLayout
 		);
 	}
 
@@ -81,8 +76,7 @@ export default router => {
 			setSection( LOGIN_SECTION_DEFINITION ),
 			login,
 			setShouldServerSideRenderLogin,
-			makeLayout,
-			render
+			makeLayout
 		);
 	}
 };
