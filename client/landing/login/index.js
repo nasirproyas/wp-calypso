@@ -2,7 +2,7 @@
  * Global polyfills
  */
 import 'boot/polyfills';
-import { hydrate } from 'controller/web-util';
+import { hydrate, render } from 'controller/web-util';
 
 /**
  * External dependencies
@@ -36,7 +36,11 @@ page.exit( '*', ( context, next ) => {
 initLoginSection( page );
 
 page( '*', ( context, next ) => {
-	hydrate( context );
+	if ( context.serverSideRender ) {
+		hydrate( context );
+	} else {
+		render( context );
+	}
 	next();
 } );
 
