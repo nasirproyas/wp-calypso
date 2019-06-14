@@ -33,16 +33,11 @@ page.exit( '*', ( context, next ) => {
 	next();
 } );
 
-initLoginSection( page );
-
-page( '*', ( context, next ) => {
-	if ( context.serverSideRender ) {
-		hydrate( context );
-	} else {
-		render( context );
-	}
+initLoginSection( ( route, ...handlers ) => page( route, ...handlers, renderHandler ) );
+function renderHandler( context, next ) {
+	( context.serverSideRender ? hydrate : render )( context );
 	next();
-} );
+}
 
 window.AppBoot = () => {
 	page.start();
