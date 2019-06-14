@@ -16,6 +16,20 @@ import { removeNotice } from 'state/notices/actions';
 import GlobalNoticesContainer from './container';
 
 export class GlobalNotices extends Component {
+	static propTypes = {
+		id: PropTypes.string,
+		notices: PropTypes.oneOfType( [ PropTypes.object, PropTypes.array ] ),
+
+		// Connected props
+		removeNotice: PropTypes.func.isRequired,
+		storeNotices: PropTypes.array.isRequired,
+	};
+
+	static defaultProps = {
+		id: 'overlay-notices',
+		notices: Object.freeze( [] ),
+	};
+
 	update = () => {
 		this.forceUpdate();
 	};
@@ -114,20 +128,6 @@ export class GlobalNotices extends Component {
 
 		return <GlobalNoticesContainer id={ this.props.id }>{ noticesList }</GlobalNoticesContainer>;
 	}
-
-	static propTypes = {
-		id: PropTypes.string,
-		notices: PropTypes.oneOfType( [ PropTypes.object, PropTypes.array ] ),
-
-		// Connected props
-		removeNotice: PropTypes.func.isRequired,
-		storeNotices: PropTypes.array.isRequired,
-	};
-
-	static defaultProps = {
-		id: 'overlay-notices',
-		notices: Object.freeze( [] ),
-	};
 }
 
 export default connect(
