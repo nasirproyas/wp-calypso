@@ -11,7 +11,6 @@ import wpcomApiMiddleware from 'state/data-layer/wpcom-api-middleware';
 import { reducer as httpData, enhancer as httpDataEnhancer } from 'state/data-layer/http-data';
 import { combineReducers } from 'state/utils';
 import application from 'state/application/reducer';
-import currentUser from 'state/current-user/reducer';
 import documentHead from 'state/document-head/reducer';
 import login from 'state/login/reducer';
 import language from 'state/ui/language/reducer';
@@ -25,7 +24,6 @@ import i18n from 'state/i18n/reducer';
 // Create Redux store
 const reducer = combineReducers( {
 	application,
-	currentUser,
 	documentHead,
 	httpData,
 	login,
