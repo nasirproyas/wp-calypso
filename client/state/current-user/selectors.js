@@ -18,7 +18,7 @@ import { getUser } from 'state/users/selectors';
  * @return {?Number}        Current user ID
  */
 export function getCurrentUserId( state ) {
-	return get( state, [ 'currentUser', 'id' ] );
+	return get( state, [ 'currentUser', 'id' ], null );
 }
 
 /**
