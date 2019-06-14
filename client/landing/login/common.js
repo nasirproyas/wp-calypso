@@ -8,7 +8,7 @@ import debugFactory from 'debug';
 
 const debug = debugFactory( 'calypso' );
 
-export function setupContextMiddleware( reduxStore ) {
+export function setupContextMiddleware() {
 	page( '*', ( context, next ) => {
 		// page.js url parsing is broken so we had to disable it with `decodeURLComponents: false`
 		const parsed = url.parse( context.canonicalPath, true );
@@ -28,8 +28,6 @@ export function setupContextMiddleware( reduxStore ) {
 			context.hash = {};
 		}
 
-		context.store = reduxStore;
-
 		// client version of the isomorphic method for redirecting to another page
 		context.redirect = ( httpCode, newUrl = null ) => {
 			if ( isNaN( httpCode ) && ! newUrl ) {
@@ -45,13 +43,6 @@ export function setupContextMiddleware( reduxStore ) {
 			return;
 		}
 
-		next();
-	} );
-
-	page.exit( '*', ( context, next ) => {
-		if ( ! context.store ) {
-			context.store = reduxStore;
-		}
 		next();
 	} );
 }
