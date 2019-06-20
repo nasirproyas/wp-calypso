@@ -1,9 +1,6 @@
-/** @format */
-
 /**
  * External dependencies
  */
-
 import validator from 'is-my-json-valid';
 import {
 	forEach,
@@ -17,7 +14,7 @@ import {
 	reduce,
 	reduceRight,
 } from 'lodash';
-import { combineReducers as combine } from 'redux'; // eslint-disable-line wpcalypso/import-no-redux-combine-reducers
+import { combineReducers as combine, Reducer, Action, AnyAction, ReducersMapObject } from 'redux'; // eslint-disable-line wpcalypso/import-no-redux-combine-reducers
 import LRU from 'lru';
 
 /**
@@ -26,6 +23,7 @@ import LRU from 'lru';
 import { APPLY_STORED_STATE, DESERIALIZE, SERIALIZE } from 'state/action-types';
 import { SerializationResult } from 'state/serialization-result';
 import warn from 'lib/warn';
+import { __TodoAny__ } from 'client/types';
 
 export function isValidStateWithSchema( state, schema, debugInfo ) {
 	const validate = validator( schema, {
@@ -378,18 +376,32 @@ export const withoutPersistence = reducer => {
 	return wrappedReducer;
 };
 
+interface CreateReducerHandlers< S > {
+	/**
+	 * This could be defined as `Redux.Reducer< S, Action< typeof actionType > >`,
+	 * but Redux.Reducer accepts `S | undefined` as `state`. `createReducer`
+	 * requires an `initialState` which is used as a default value for the reducer,
+	 * se we don't want a union with `undefined` as the input to the reducer function.
+	 */
+	[actionType: string]: ( state: S, action: Action< typeof actionType > ) => S;
+}
+
 /**
  * Returns a reducer function with state calculation determined by the result
  * of invoking the handler key corresponding with the dispatched action type,
  * passing both the current state and action object. Defines default
  * serialization (persistence) handlers based on the presence of a schema.
  *
- * @param  {*}        initialState   Initial state
- * @param  {Object}   handlers       Object mapping action types to state action handlers
- * @param  {?Object}  schema         JSON schema object for deserialization validation
- * @return {Function}                Reducer function
+ * @param  initialState Initial state
+ * @param  handlers     Object mapping action types to state action handlers
+ * @param  schema       JSON schema object for deserialization validation
+ * @return              Reducer function
  */
-export function createReducer( initialState, handlers, schema ) {
+export function createReducer< S >(
+	initialState: S,
+	handlers: CreateReducerHandlers< S >,
+	schema?: __TodoAny__ /* is-my-json-valid schema types are not exported. https://github.com/mafintosh/is-my-json-valid/pull/170 */
+): Reducer< S, Action< keyof typeof handlers > > {
 	const reducer = ( state = initialState, action ) => {
 		const { type } = action;
 
@@ -420,6 +432,8 @@ export function createReducer( initialState, handlers, schema ) {
 	reducer.hasCustomPersistence = true;
 	return reducer;
 }
+
+const r = createReducer( 1, { INCREMENT: s => s + 1, DECREMENT: s => s - 1 } );
 
 /*
  * Wrap the reducer with appropriate persistence code. If it has the `hasCustomPersistence` flag,
@@ -631,10 +645,10 @@ export function addReducer( origReducer, reducers ) {
  * combinedReducer( { date: new Date( 6 ), height: 123 } ), { type: SERIALIZE } ); // { date: 6, height: 150 };
  * combinedReducer( { date: new Date( 6 ), height: 123 } ), { type: GROW } ); // { date: new Date( 7 ), height: 124 };
  *
- * @param {object} reducers - object containing the reducers to merge
- * @returns {function} - Returns the combined reducer function
+ * @param  reducers object containing the reducers to merge
+ * @return          Combined reducer function
  */
-export function combineReducers( reducers ) {
+export function combineReducers< S >( reducers: ReducersMapObject< S > ): Reducer< S > {
 	// set up persistence of reducers passed from app and then create a combined one
 	return createCombinedReducer( mapValues( reducers, setupReducerPersistence ) );
 }
