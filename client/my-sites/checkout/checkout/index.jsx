@@ -92,6 +92,7 @@ import PageViewTracker from 'lib/analytics/page-view-tracker';
 import isAtomicSite from 'state/selectors/is-site-automated-transfer';
 import config from 'config';
 import { abtest } from 'lib/abtest';
+import { retrieveSignupDestination } from 'signup/utils';
 
 /**
  * Style dependencies
@@ -454,9 +455,10 @@ export class Checkout extends React.Component {
 			if ( this.props.redirectToPageBuilder ) {
 				return getEditHomeUrl( selectedSiteSlug );
 			}
-			const destination = abtest( 'improvedOnboarding' ) === 'main' ? 'checklist' : 'view';
 
-			return `/${ destination }/${ selectedSiteSlug }${ queryParam }`;
+			const destination = retrieveSignupDestination();
+
+			return `${ destination }${ queryParam }`;
 		}
 
 		if ( this.props.isJetpackNotAtomic ) {
