@@ -30,6 +30,7 @@ import { URL } from 'types';
 import { getSitePlanSlug } from 'state/sites/plans/selectors';
 import { isBusinessPlan, isPremiumPlan } from 'lib/plans';
 import withTrackingTool from 'lib/analytics/with-tracking-tool';
+import JetpackProductInstall from 'my-sites/plans/current-plan/jetpack-product-install';
 
 /**
  * Style dependencies
@@ -123,6 +124,7 @@ class JetpackChecklist extends PureComponent< Props & LocalizeProps > {
 				{ siteId && <QuerySiteChecklist siteId={ siteId } /> }
 				{ isPaidPlan && <QueryJetpackProductInstallStatus siteId={ siteId } /> }
 				{ isPaidPlan && <QueryRewindState siteId={ siteId } /> }
+				<JetpackProductInstall />
 
 				<JetpackChecklistHeader isPaidPlan={ isPaidPlan } />
 
