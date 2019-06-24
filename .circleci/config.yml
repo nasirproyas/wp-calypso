@@ -120,7 +120,7 @@ references:
 
   npm-install: &npm-install
     name: Install npm dependencies
-    command: npm ci
+    command: CHROMEDRIVER_VERSION='75.0.3770.90' npm ci
 
   save-npm-cache: &save-npm-cache
     name: 'Save node_modules cache'
