@@ -400,6 +400,10 @@ export class Checkout extends React.Component {
 			return '/checkout/thank-you/features';
 		}
 
+		if ( this.props.isJetpackNotAtomic ) {
+			return signUpdestination;
+		}
+
 		if ( this.props.isNewlyCreatedSite && receipt && isEmpty( receipt.failed_purchases ) ) {
 			const siteDesignType = get( selectedSite, 'options.design_type' );
 			const hasGoogleAppsInCart = hasGoogleApps( cart );
@@ -451,10 +455,6 @@ export class Checkout extends React.Component {
 		}
 
 		const queryParam = displayModeParam ? `?${ displayModeParam }` : '';
-
-		if ( this.props.isJetpackNotAtomic ) {
-			return `/plans/my-plan/${ selectedSiteSlug }?thank-you`;
-		}
 
 		if ( this.props.isEligibleForSignupDestination && receipt ) {
 			return `${ signUpdestination }${ queryParam }`;
