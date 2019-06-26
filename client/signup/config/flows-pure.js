@@ -144,7 +144,7 @@ export function generateFlows( {
 			steps: [ 'user', 'site-type', 'site-topic', 'site-title', 'domains', 'plans' ],
 			destination: getSignupDestination,
 			description: 'The improved onboarding flow.',
-			lastModified: '2019-04-30',
+			lastModified: '2019-06-26',
 		},
 
 		'delta-discover': {
