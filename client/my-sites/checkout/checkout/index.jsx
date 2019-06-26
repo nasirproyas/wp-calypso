@@ -91,7 +91,7 @@ import PageViewTracker from 'lib/analytics/page-view-tracker';
 import isAtomicSite from 'state/selectors/is-site-automated-transfer';
 import config from 'config';
 import { abtest } from 'lib/abtest';
-import { retrieveSignupDestination } from 'signup/utils';
+import { persistSignupDestination, retrieveSignupDestination } from 'signup/utils';
 
 /**
  * Style dependencies
@@ -376,9 +376,11 @@ export class Checkout extends React.Component {
 		// The `:receiptId` string is filled in by our callback page after the PayPal checkout
 		const receiptId = receipt ? receipt.receipt_id : ':receiptId';
 		const destinationFromStore = retrieveSignupDestination();
-		const signUpdestination = destinationFromStore
+		const signupDestination = destinationFromStore
 			? destinationFromStore.replace( ':receiptId', receiptId )
 			: `/view/${ selectedSiteSlug }`;
+
+		persistSignupDestination( signupDestination );
 
 		if ( hasRenewalItem( cart ) ) {
 			renewalItem = getRenewalItems( cart )[ 0 ];
@@ -393,7 +395,7 @@ export class Checkout extends React.Component {
 		}
 
 		if ( cart.create_new_blog ) {
-			return `${ signUpdestination }/${ receiptId }`;
+			return `${ signupDestination }/${ receiptId }`;
 		}
 
 		if ( ! selectedSiteSlug ) {
@@ -401,7 +403,7 @@ export class Checkout extends React.Component {
 		}
 
 		if ( this.props.isJetpackNotAtomic ) {
-			return signUpdestination;
+			return signupDestination;
 		}
 
 		if ( this.props.isNewlyCreatedSite && receipt && isEmpty( receipt.failed_purchases ) ) {
@@ -416,7 +418,7 @@ export class Checkout extends React.Component {
 					plan: 'paid',
 				} );
 
-				return `/${ signUpdestination }?d=gsuite`;
+				return `/${ signupDestination }?d=gsuite`;
 			}
 
 			// Maybe show either the G Suite or Concierge Session upsell pages
@@ -457,7 +459,7 @@ export class Checkout extends React.Component {
 		const queryParam = displayModeParam ? `?${ displayModeParam }` : '';
 
 		if ( this.props.isEligibleForSignupDestination && receipt ) {
-			return `${ signUpdestination }${ queryParam }`;
+			return `${ signupDestination }${ queryParam }`;
 		}
 
 		return this.props.selectedFeature && isValidFeatureKey( this.props.selectedFeature )
