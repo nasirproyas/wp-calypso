@@ -10,9 +10,9 @@ import {
 	hasTransferProduct,
 	hasPlan,
 	hasConciergeSession,
-	hasEcommercePlan,
 } from 'lib/cart-values/cart-items';
 import isEligibleForDotcomChecklist from './is-eligible-for-dotcom-checklist';
+import { retrieveSignupDestination } from 'signup/utils';
 
 /**
  * @param {Object} state Global state tree
@@ -20,16 +20,21 @@ import isEligibleForDotcomChecklist from './is-eligible-for-dotcom-checklist';
  * @param {Object} cart object
  * @return {Boolean} True if current user is able to see the checklist after checkout
  */
-export default function isEligibleForCheckoutToChecklist( state, siteId, cart ) {
+export default function isEligibleForSignupDestination( state, siteId, cart ) {
 	if (
 		hasDomainMapping( cart ) ||
 		hasDomainRegistration( cart ) ||
 		hasTransferProduct( cart ) ||
-		( ! hasPlan( cart ) && ! hasConciergeSession( cart ) ) ||
-		hasEcommercePlan( cart )
+		( ! hasPlan( cart ) && ! hasConciergeSession( cart ) )
 	) {
 		return false;
 	}
 
-	return isNewSite( state, siteId ) && isEligibleForDotcomChecklist( state, siteId );
+	const destination = retrieveSignupDestination();
+
+	if ( destination.includes( '/checklist/' ) ) {
+		return isNewSite( state, siteId ) && isEligibleForDotcomChecklist( state, siteId );
+	}
+
+	return isNewSite( state, siteId );
 }

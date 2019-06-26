@@ -69,7 +69,7 @@ import {
 import getContactDetailsCache from 'state/selectors/get-contact-details-cache';
 import getUpgradePlanSlugFromPath from 'state/selectors/get-upgrade-plan-slug-from-path';
 import isDomainOnlySite from 'state/selectors/is-domain-only-site';
-import isEligibleForCheckoutToChecklist from 'state/selectors/is-eligible-for-checkout-to-checklist';
+import isEligibleForSignupDestination from 'state/selectors/is-eligible-for-checkout-to-checklist';
 import { getStoredCards } from 'state/stored-cards/selectors';
 import { isValidFeatureKey } from 'lib/plans/features-list';
 import { getPlan, findPlansKeys } from 'lib/plans';
@@ -376,6 +376,10 @@ export class Checkout extends React.Component {
 		// Note: this function is called early on for redirect-type payment methods, when the receipt isn't set yet.
 		// The `:receiptId` string is filled in by our callback page after the PayPal checkout
 		const receiptId = receipt ? receipt.receipt_id : ':receiptId';
+		const destinationFromStore = retrieveSignupDestination();
+		const signUpdestination = destinationFromStore
+			? destinationFromStore.replace( ':receiptId', receiptId )
+			: `/view/${ selectedSiteSlug }`;
 
 		if ( hasRenewalItem( cart ) ) {
 			renewalItem = getRenewalItems( cart )[ 0 ];
@@ -390,8 +394,7 @@ export class Checkout extends React.Component {
 		}
 
 		if ( cart.create_new_blog ) {
-			const destination = retrieveSignupDestination();
-			return `${ destination }/${ receiptId }`;
+			return `${ signUpdestination }/${ receiptId }`;
 		}
 
 		if ( ! selectedSiteSlug ) {
@@ -410,9 +413,7 @@ export class Checkout extends React.Component {
 					plan: 'paid',
 				} );
 
-				const destination = retrieveSignupDestination();
-
-				return `/${ destination }?d=gsuite`;
+				return `/${ signUpdestination }?d=gsuite`;
 			}
 
 			// Maybe show either the G Suite or Concierge Session upsell pages
@@ -452,18 +453,16 @@ export class Checkout extends React.Component {
 
 		const queryParam = displayModeParam ? `?${ displayModeParam }` : '';
 
-		if ( this.props.isEligibleForCheckoutToChecklist && receipt ) {
+		if ( this.props.isJetpackNotAtomic ) {
+			return `/plans/my-plan/${ selectedSiteSlug }?thank-you`;
+		}
+
+		if ( this.props.isEligibleForSignupDestination && receipt ) {
 			if ( this.props.redirectToPageBuilder ) {
 				return getEditHomeUrl( selectedSiteSlug );
 			}
 
-			const destination = retrieveSignupDestination();
-
-			return `${ destination }${ queryParam }`;
-		}
-
-		if ( this.props.isJetpackNotAtomic ) {
-			return `/plans/my-plan/${ selectedSiteSlug }?thank-you&install=all`;
+			return `${ signUpdestination }${ queryParam }`;
 		}
 
 		return this.props.selectedFeature && isValidFeatureKey( this.props.selectedFeature )
@@ -770,7 +769,7 @@ export default connect(
 			isNewlyCreatedSite: isNewSite( state, selectedSiteId ),
 			contactDetails: getContactDetailsCache( state ),
 			userCountryCode: getCurrentUserCountryCode( state ),
-			isEligibleForCheckoutToChecklist: isEligibleForCheckoutToChecklist(
+			isEligibleForSignupDestination: isEligibleForSignupDestination(
 				state,
 				selectedSiteId,
 				props.cart
