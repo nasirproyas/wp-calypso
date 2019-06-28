@@ -10,6 +10,7 @@ import {
 	hasTransferProduct,
 	hasPlan,
 	hasConciergeSession,
+	hasEcommercePlan,
 } from 'lib/cart-values/cart-items';
 import isEligibleForDotcomChecklist from './is-eligible-for-dotcom-checklist';
 import { retrieveSignupDestination } from 'signup/utils';
@@ -26,7 +27,8 @@ export default function isEligibleForSignupDestination( state, siteId, cart ) {
 		hasDomainMapping( cart ) ||
 		hasDomainRegistration( cart ) ||
 		hasTransferProduct( cart ) ||
-		( ! hasPlan( cart ) && ! hasConciergeSession( cart ) )
+		( ! hasPlan( cart ) && ! hasConciergeSession( cart ) ) ||
+		hasEcommercePlan( cart )
 	) {
 		return false;
 	}
