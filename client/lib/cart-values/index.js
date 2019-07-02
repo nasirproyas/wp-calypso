@@ -42,6 +42,7 @@ const PAYMENT_METHODS = {
 	wechat: 'WPCOM_Billing_Stripe_Source_Wechat',
 	'web-payment': 'WPCOM_Billing_Web_Payment',
 	sofort: 'WPCOM_Billing_Stripe_Source_Sofort',
+	stripe: 'WPCOM_Billing_Stripe_Elements',
 };
 
 /**
@@ -310,6 +311,11 @@ export function getEnabledPaymentMethods( cart ) {
 		return 'WPCOM_Billing_Web_Payment' !== method || null !== detectWebPaymentMethod();
 	} );
 
+	// This is just for testing. Eventually this should be included on the server.
+	if ( config.isEnabled( 'checkout/stripe-payment-method' ) ) {
+		allowedPaymentMethods = [ ...allowedPaymentMethods, 'WPCOM_Billing_Stripe_Elements' ];
+	}
+
 	// Invert so we can search by class name.
 	const paymentMethodsKeys = invert( PAYMENT_METHODS );
 
@@ -357,6 +363,7 @@ export function paymentMethodName( method ) {
 			comment: 'Name for WeChat Pay - https://pay.weixin.qq.com/',
 		} ),
 		sofort: 'Sofort',
+		stripe: 'Stripe',
 	};
 
 	return paymentMethodsNames[ method ] || method;
@@ -375,6 +382,7 @@ export function isPaymentMethodEnabled( cart, method ) {
 		'brazil-tef',
 		'wechat',
 		'sofort',
+		'stripe',
 	];
 	const methodClassName = paymentMethodClassName( method );
 
@@ -392,6 +400,11 @@ export function isPaymentMethodEnabled( cart, method ) {
 
 	if ( 'web-payment' === method && null === detectWebPaymentMethod() ) {
 		return false;
+	}
+
+	// This is temporary until we add this to the server.
+	if ( 'stripe' === method && config.isEnabled( 'checkout/stripe-payment-method' ) ) {
+		return true;
 	}
 
 	return (
