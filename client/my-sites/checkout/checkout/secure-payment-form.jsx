@@ -18,6 +18,7 @@ import FreeTrialConfirmationBox from './free-trial-confirmation-box';
 import FreeCartPaymentBox from './free-cart-payment-box';
 import CreditCardPaymentBox from './credit-card-payment-box';
 import PayPalPaymentBox from './paypal-payment-box';
+import StripeElementsPaymentBox from './stripe-elements-payment-box';
 import WechatPaymentBox from './wechat-payment-box';
 import RedirectPaymentBox from './redirect-payment-box';
 import WebPaymentBox from './web-payment-box';
@@ -378,6 +379,30 @@ export class SecurePaymentForm extends Component {
 		);
 	}
 
+	renderStripeElementsPaymentBox() {
+		return (
+			<PaymentBox
+				classSet="stripe-elements-payment-box"
+				cart={ this.props.cart }
+				paymentMethods={ this.props.paymentMethods }
+				currentPaymentMethod="stripe"
+				onSelectPaymentMethod={ this.selectPaymentBox }
+			>
+				<QueryPaymentCountries />
+				<StripeElementsPaymentBox
+					cart={ this.props.cart }
+					transaction={ this.props.transaction }
+					countriesList={ this.props.countriesList }
+					selectedSite={ this.props.selectedSite }
+					redirectTo={ this.props.redirectTo }
+					presaleChatAvailable={ this.props.presaleChatAvailable }
+				>
+					{ this.props.children }
+				</StripeElementsPaymentBox>
+			</PaymentBox>
+		);
+	}
+
 	renderPayPalPaymentBox() {
 		return (
 			<PaymentBox
@@ -522,6 +547,13 @@ export class SecurePaymentForm extends Component {
 					<div>
 						{ this.renderGreatChoiceHeader() }
 						{ this.renderRedirectPaymentBox( visiblePaymentBox ) }
+					</div>
+				);
+			case 'stripe':
+				return (
+					<div>
+						{ this.renderGreatChoiceHeader() }
+						{ this.renderStripeElementsPaymentBox() }
 					</div>
 				);
 			case 'web-payment':
