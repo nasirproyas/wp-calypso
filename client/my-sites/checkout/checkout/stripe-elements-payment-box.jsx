@@ -37,19 +37,19 @@ function useStripeJs( url, apiKey ) {
 	return stripeJs;
 }
 
-async function createToken( stripe ) {
-	debug( 'creating token...' );
-	const { token, error } = await stripe.createToken();
-	debug( 'createToken complete', token, error );
+async function submitPaymentForm( stripe ) {
+	debug( 'creating payment method...' );
+	const { paymentMethod, error } = await stripe.createPaymentMethod();
+	debug( 'payment method creation complete', paymentMethod, error );
 	// TODO: handle errors
-	// TODO: send token to server
+	// TODO: send paymentMethod to server
 }
 
 function StripeElementsForm( { stripe } ) {
 	const handleSubmit = event => {
 		event.preventDefault();
 		debug( 'ready to submit form' );
-		createToken( stripe );
+		submitPaymentForm( stripe );
 	};
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add the rest of the form fields
