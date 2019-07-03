@@ -125,15 +125,11 @@ export class RedirectPaymentBox extends PureComponent {
 	}
 
 	redirectToPayment = event => {
-		const origin = getLocationOrigin( location );
 		event.preventDefault();
+		const origin = getLocationOrigin( window.location );
 
 		const validation = validatePaymentDetails( this.state.paymentDetails, this.props.paymentType );
-
-		this.setState( {
-			errorMessages: validation.errors,
-		} );
-
+		this.setState( { errorMessages: validation.errors } );
 		if ( ! isEmpty( validation.errors ) ) {
 			return;
 		}
@@ -145,14 +141,6 @@ export class RedirectPaymentBox extends PureComponent {
 			disabled: true,
 		} );
 
-		let cancelUrl = origin + '/checkout/';
-
-		if ( this.props.selectedSite ) {
-			cancelUrl += this.props.selectedSite.slug;
-		} else {
-			cancelUrl += 'no-site';
-		}
-
 		// unmask form values
 		const paymentDetails = mapValues( this.state.paymentDetails, ( value, key ) =>
 			unmaskField( key, null, value )
@@ -162,7 +150,10 @@ export class RedirectPaymentBox extends PureComponent {
 			payment: Object.assign( {}, paymentDetails, {
 				paymentMethod: this.paymentMethodByType( this.props.paymentType ),
 				successUrl: origin + this.props.redirectTo(),
-				cancelUrl,
+				cancelUrl:
+					origin +
+					'/checkout/' +
+					( this.props.selectedSite ? this.props.selectedSite.slug : 'no-site' ),
 			} ),
 			cart: this.props.cart,
 			domainDetails: this.props.transaction.domainDetails,
@@ -170,19 +161,15 @@ export class RedirectPaymentBox extends PureComponent {
 
 		// get the redirect URL from rest endpoint
 		wpcom.undocumented().transactions( 'POST', dataForApi, ( error, result ) => {
-			let errorMessage;
 			if ( error ) {
-				if ( error.message ) {
-					errorMessage = error.message;
-				} else {
-					errorMessage = translate( "We've encountered a problem. Please try again later." );
-				}
-
 				this.setSubmitState( {
-					error: errorMessage,
+					error:
+						error.message || translate( "We've encountered a problem. Please try again later." ),
 					disabled: false,
 				} );
-			} else if ( result.redirect_url ) {
+				return;
+			}
+			if ( result.redirect_url ) {
 				this.setSubmitState( {
 					info: translate( 'Redirecting you to the payment partner to complete the payment.' ),
 					disabled: true,
@@ -191,7 +178,7 @@ export class RedirectPaymentBox extends PureComponent {
 				analytics.tracks.recordEvent(
 					'calypso_checkout_with_redirect_' + snakeCase( this.props.paymentType )
 				);
-				location.href = result.redirect_url;
+				window.location.href = result.redirect_url;
 			}
 		} );
 	};
