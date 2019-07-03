@@ -37,27 +37,46 @@ function useStripeJs( url, apiKey ) {
 	return stripeJs;
 }
 
-async function submitPaymentForm( stripe ) {
-	debug( 'creating payment method...' );
-	const { paymentMethod, error } = await stripe.createPaymentMethod();
+async function submitPaymentForm( stripe, paymentDetails ) {
+	debug( 'creating payment method...', paymentDetails );
+	const { paymentMethod, error } = await stripe.createPaymentMethod( 'card', {
+		billing_details: paymentDetails,
+	} );
 	debug( 'payment method creation complete', paymentMethod, error );
 	// TODO: handle errors
 	// TODO: send paymentMethod to server
 }
 
 function StripeElementsForm( { stripe } ) {
+	const [ cardholderName, setCardholderName ] = useState( '' );
+	const onNameChange = event => setCardholderName( event.target.value );
 	const handleSubmit = event => {
 		event.preventDefault();
-		debug( 'ready to submit form' );
-		submitPaymentForm( stripe );
+		submitPaymentForm( stripe, {
+			name: cardholderName,
+		} );
 	};
 	/* eslint-disable jsx-a11y/label-has-associated-control */
-	// TODO: add the rest of the form fields
+	// TODO: add country
+	// TODO: add subscription length toggle
+	// TODO: add TOS
+	// TODO: add chat help link
 	// TODO: add total payment amount
+	// TODO: localize these strings
 	return (
 		<form onSubmit={ handleSubmit }>
 			<label>
-				Card details
+				Cardholder Name (as written on card)
+				<input
+					type="text"
+					placeholder="Jane Doe"
+					value={ cardholderName }
+					onChange={ onNameChange }
+					required
+				/>
+			</label>
+			<label>
+				Card Details
 				<CardElement />
 			</label>
 			<button className="stripe-elements-payment-box__pay-button">Pay</button>
