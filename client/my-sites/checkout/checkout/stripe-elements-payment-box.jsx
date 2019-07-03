@@ -37,13 +37,23 @@ function useStripeJs( url, apiKey ) {
 	return stripeJs;
 }
 
-function StripeElementsForm() {
+async function createToken( stripe ) {
+	debug( 'creating token...' );
+	const { token, error } = await stripe.createToken();
+	debug( 'createToken complete', token, error );
+	// TODO: handle errors
+	// TODO: send token to server
+}
+
+function StripeElementsForm( { stripe } ) {
 	const handleSubmit = event => {
 		event.preventDefault();
 		debug( 'ready to submit form' );
-		// TODO: create source, etc.
+		createToken( stripe );
 	};
 	/* eslint-disable jsx-a11y/label-has-associated-control */
+	// TODO: add the rest of the form fields
+	// TODO: add total payment amount
 	return (
 		<form onSubmit={ handleSubmit }>
 			<label>
