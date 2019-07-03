@@ -47,7 +47,7 @@ async function submitPaymentForm( stripe, paymentDetails ) {
 	// TODO: send paymentMethod to server
 }
 
-function StripeElementsForm( { stripe } ) {
+function StripeElementsForm( { stripe, cart } ) {
 	const [ cardholderName, setCardholderName ] = useState( '' );
 	const onNameChange = event => setCardholderName( event.target.value );
 	const handleSubmit = event => {
@@ -56,12 +56,12 @@ function StripeElementsForm( { stripe } ) {
 			name: cardholderName,
 		} );
 	};
+
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add country
 	// TODO: add subscription length toggle
 	// TODO: add TOS
 	// TODO: add chat help link
-	// TODO: add total payment amount
 	// TODO: localize these strings
 	return (
 		<form onSubmit={ handleSubmit }>
@@ -79,7 +79,9 @@ function StripeElementsForm( { stripe } ) {
 				Card Details
 				<CardElement />
 			</label>
-			<button className="stripe-elements-payment-box__pay-button">Pay</button>
+			<button className="stripe-elements-payment-box__pay-button">
+				Pay { cart.total_cost_display }
+			</button>
 		</form>
 	);
 	/* eslint-enable jsx-a11y/label-has-associated-control */
@@ -87,12 +89,12 @@ function StripeElementsForm( { stripe } ) {
 
 const InjectedStripeElementsForm = injectStripe( StripeElementsForm );
 
-export function StripeElementsPaymentBox() {
+export function StripeElementsPaymentBox( { cart } ) {
 	const stripeJs = useStripeJs( stripeJsUrl, stripeApiKey );
 	return (
 		<StripeProvider stripe={ stripeJs }>
 			<Elements>
-				<InjectedStripeElementsForm />
+				<InjectedStripeElementsForm cart={ cart } />
 			</Elements>
 		</StripeProvider>
 	);
