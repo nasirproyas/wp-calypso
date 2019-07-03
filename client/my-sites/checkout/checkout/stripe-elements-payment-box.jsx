@@ -37,12 +37,20 @@ function useStripeJs( url, apiKey ) {
 }
 
 function StripeElementsForm() {
+	const handleSubmit = event => {
+		event.preventDefault();
+		debug( 'ready to submit form' );
+		// TODO: create source, etc.
+	};
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	return (
-		<label>
-			Card details
-			<CardElement />
-		</label>
+		<form onSubmit={ handleSubmit }>
+			<label>
+				Card details
+				<CardElement />
+			</label>
+			<button className="stripe-elements-payment-box__pay-button">Pay</button>
+		</form>
 	);
 	/* eslint-enable jsx-a11y/label-has-associated-control */
 }
