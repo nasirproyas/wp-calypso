@@ -21,6 +21,7 @@ function useStripeJs( url, apiKey ) {
 	useEffect( () => {
 		if ( window.Stripe ) {
 			debug( 'stripe.js already loaded' );
+			setStripeJs( window.Stripe( apiKey ) );
 			return;
 		}
 		debug( 'loading stripe.js...' );
