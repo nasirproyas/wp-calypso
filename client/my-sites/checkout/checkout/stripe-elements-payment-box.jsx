@@ -47,7 +47,7 @@ async function submitPaymentForm( stripe, paymentDetails ) {
 	// TODO: send paymentMethod to server
 }
 
-function StripeElementsForm( { stripe, cart } ) {
+function StripeElementsForm( { translate, stripe, cart } ) {
 	const [ cardholderName, setCardholderName ] = useState( '' );
 	const onNameChange = event => setCardholderName( event.target.value );
 	const handleSubmit = event => {
@@ -56,17 +56,28 @@ function StripeElementsForm( { stripe, cart } ) {
 			name: cardholderName,
 		} );
 	};
+	const cardholderNameLabel = translate( 'Cardholder Name {{span}}(as written on card){{/span}}', {
+		comment: 'Cardholder name label on credit card form',
+		components: { // eslint-disable-next-line wpcalypso/jsx-classname-namespace
+			span: <span className="credit-card-form-fields__explainer" />,
+		},
+	} );
+	const cardDetailsLabel = translate( 'Card Details' );
+	const payButtonLabel = translate( 'Pay %(price)s', {
+			args: {
+				price: cart.total_cost_display,
+			},
+		} );
 
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add country
 	// TODO: add subscription length toggle
 	// TODO: add TOS
 	// TODO: add chat help link
-	// TODO: localize these strings
 	return (
 		<form onSubmit={ handleSubmit }>
 			<label>
-				Cardholder Name (as written on card)
+				{ cardholderNameLabel }
 				<input
 					type="text"
 					placeholder="Jane Doe"
@@ -76,11 +87,11 @@ function StripeElementsForm( { stripe, cart } ) {
 				/>
 			</label>
 			<label>
-				Card Details
+				{ cardDetailsLabel }
 				<CardElement />
 			</label>
 			<button className="stripe-elements-payment-box__pay-button">
-				Pay { cart.total_cost_display }
+				{ payButtonLabel }
 			</button>
 		</form>
 	);
@@ -89,12 +100,12 @@ function StripeElementsForm( { stripe, cart } ) {
 
 const InjectedStripeElementsForm = injectStripe( StripeElementsForm );
 
-export function StripeElementsPaymentBox( { cart } ) {
+export function StripeElementsPaymentBox( { translate, cart } ) {
 	const stripeJs = useStripeJs( stripeJsUrl, stripeApiKey );
 	return (
 		<StripeProvider stripe={ stripeJs }>
 			<Elements>
-				<InjectedStripeElementsForm cart={ cart } />
+				<InjectedStripeElementsForm translate={ translate } cart={ cart } />
 			</Elements>
 		</StripeProvider>
 	);
