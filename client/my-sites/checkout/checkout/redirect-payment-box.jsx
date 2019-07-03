@@ -124,7 +124,7 @@ export class RedirectPaymentBox extends PureComponent {
 		return paymentMethodClassName( paymentType ) || 'WPCOM_Billing_Stripe_Source';
 	}
 
-	redirectToPayment = event => {
+	redirectToPayment = async event => {
 		event.preventDefault();
 		const origin = getLocationOrigin( window.location );
 
@@ -160,15 +160,8 @@ export class RedirectPaymentBox extends PureComponent {
 		};
 
 		// get the redirect URL from rest endpoint
-		wpcom.undocumented().transactions( 'POST', dataForApi, ( error, result ) => {
-			if ( error ) {
-				this.setSubmitState( {
-					error:
-						error.message || translate( "We've encountered a problem. Please try again later." ),
-					disabled: false,
-				} );
-				return;
-			}
+		try {
+			const result = await wpcom.undocumented().transactions( 'POST', dataForApi );
 			if ( result.redirect_url ) {
 				this.setSubmitState( {
 					info: translate( 'Redirecting you to the payment partner to complete the payment.' ),
@@ -180,7 +173,12 @@ export class RedirectPaymentBox extends PureComponent {
 				);
 				window.location.href = result.redirect_url;
 			}
-		} );
+		} catch ( error ) {
+			this.setSubmitState( {
+				error: error.message || translate( "We've encountered a problem. Please try again later." ),
+				disabled: false,
+			} );
+		}
 	};
 
 	renderButtonText() {
