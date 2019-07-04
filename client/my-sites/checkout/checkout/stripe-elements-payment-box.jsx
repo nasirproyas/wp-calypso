@@ -9,6 +9,11 @@ import React, { useEffect, useState } from 'react';
 import { localize } from 'i18n-calypso';
 import { StripeProvider, Elements, injectStripe, CardElement } from 'react-stripe-elements';
 
+/**
+ * Internal dependencies
+ */
+import notices from 'notices';
+
 const debug = debugFactory( 'calypso:stripe-elements-payment-box' );
 
 // TODO: move this to somewhere else
@@ -43,7 +48,10 @@ async function submitPaymentForm( stripe, paymentDetails ) {
 		billing_details: paymentDetails,
 	} );
 	debug( 'payment method creation complete', paymentMethod, error );
-	// TODO: handle errors
+	if ( error ) {
+		// Note that this is a promise rejection
+		throw new Error( error.message );
+	}
 	// TODO: send paymentMethod to server
 }
 
@@ -54,20 +62,24 @@ function StripeElementsForm( { translate, stripe, cart } ) {
 		event.preventDefault();
 		submitPaymentForm( stripe, {
 			name: cardholderName,
+		} ).catch( error => {
+			debug( 'error while submitting payment', error );
+			notices.error( error.toString() );
 		} );
 	};
 	const cardholderNameLabel = translate( 'Cardholder Name {{span}}(as written on card){{/span}}', {
 		comment: 'Cardholder name label on credit card form',
-		components: { // eslint-disable-next-line wpcalypso/jsx-classname-namespace
+		components: {
+			// eslint-disable-next-line wpcalypso/jsx-classname-namespace
 			span: <span className="credit-card-form-fields__explainer" />,
 		},
 	} );
 	const cardDetailsLabel = translate( 'Card Details' );
 	const payButtonLabel = translate( 'Pay %(price)s', {
-			args: {
-				price: cart.total_cost_display,
-			},
-		} );
+		args: {
+			price: cart.total_cost_display,
+		},
+	} );
 
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add country
@@ -90,9 +102,7 @@ function StripeElementsForm( { translate, stripe, cart } ) {
 				{ cardDetailsLabel }
 				<CardElement />
 			</label>
-			<button className="stripe-elements-payment-box__pay-button">
-				{ payButtonLabel }
-			</button>
+			<button className="stripe-elements-payment-box__pay-button">{ payButtonLabel }</button>
 		</form>
 	);
 	/* eslint-enable jsx-a11y/label-has-associated-control */
