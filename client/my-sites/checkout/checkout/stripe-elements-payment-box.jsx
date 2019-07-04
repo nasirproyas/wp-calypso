@@ -4,10 +4,12 @@
  * External dependencies
  */
 import { loadScript } from '@automattic/load-script';
+import { overSome } from 'lodash';
 import debugFactory from 'debug';
 import React, { useEffect, useState } from 'react';
 import { localize } from 'i18n-calypso';
 import { StripeProvider, Elements, injectStripe, CardElement } from 'react-stripe-elements';
+import Gridicon from 'gridicons';
 
 /**
  * Internal dependencies
@@ -15,10 +17,10 @@ import { StripeProvider, Elements, injectStripe, CardElement } from 'react-strip
 import notices from 'notices';
 import wpcom from 'lib/wp';
 import { paymentMethodClassName } from 'lib/cart-values';
-import { hasRenewableSubscription } from 'lib/cart-values/cart-items';
-import TermsOfService from './terms-of-service';
-import DomainRegistrationRefundPolicy from './domain-registration-refund-policy';
-import DomainRegistrationAgreement from './domain-registration-agreement';
+import CheckoutTerms from './checkout-terms';
+import { isWpComBusinessPlan, isWpComEcommercePlan } from 'lib/plans';
+import PaymentChatButton from './payment-chat-button';
+import SubscriptionText from './subscription-text';
 
 const debug = debugFactory( 'calypso:stripe-elements-payment-box' );
 
@@ -91,7 +93,15 @@ async function sendStripePaymentMethodToStore( {
 	return wpcom.undocumented().transactions( 'POST', dataForApi );
 }
 
-function StripeElementsForm( { translate, stripe, cart, transaction, children } ) {
+function StripeElementsForm( {
+	translate,
+	stripe,
+	cart,
+	transaction,
+	children,
+	presaleChatAvailable,
+} ) {
+	// TODO: allow disabling the payment button during processing or when not ready
 	const [ cardholderName, setCardholderName ] = useState( '' );
 	const onNameChange = event => setCardholderName( event.target.value );
 	const handleSubmit = event => {
@@ -132,11 +142,14 @@ function StripeElementsForm( { translate, stripe, cart, transaction, children } 
 			price: cart.total_cost_display,
 		},
 	} );
+	const hasBusinessPlanInCart = cart.products.some( ( { product_slug } ) =>
+		overSome( isWpComBusinessPlan, isWpComEcommercePlan )( product_slug )
+	);
+	const showPaymentChatButton = presaleChatAvailable && hasBusinessPlanInCart;
 
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add country
 	// TODO: add subscription length toggle
-	// TODO: add chat help link
 	return (
 		<form onSubmit={ handleSubmit }>
 			<div>
@@ -154,14 +167,34 @@ function StripeElementsForm( { translate, stripe, cart, transaction, children } 
 					{ cardDetailsLabel }
 					<CardElement />
 				</label>
-				<button className="stripe-elements-payment-box__pay-button">{ payButtonLabel }</button>
 			</div>
 
 			{ children }
 
-			<TermsOfService hasRenewableSubscription={ hasRenewableSubscription( cart ) } />
-			<DomainRegistrationRefundPolicy cart={ cart } />
-			<DomainRegistrationAgreement cart={ cart } />
+			<CheckoutTerms cart={ cart } />
+
+			<div className="checkout__payment-box-actions">
+				<div className="checkout__payment-box-buttons">
+					<span className="checkout__pay-button">
+						<button
+							type="submit"
+							className="checkout__pay-button-button button is-primary "
+						>{ payButtonLabel }</button>
+						<SubscriptionText cart={ cart } />
+					</span>
+
+					<div className="checkout__secure-payment">
+						<div className="checkout__secure-payment-content">
+							<Gridicon icon="lock" />
+							{ translate( 'Secure Payment' ) }
+						</div>
+					</div>
+
+					{ showPaymentChatButton && (
+						<PaymentChatButton paymentType="stripe" cart={ cart } />
+					) }
+				</div>
+			</div>
 		</form>
 	);
 	/* eslint-enable jsx-a11y/label-has-associated-control */
