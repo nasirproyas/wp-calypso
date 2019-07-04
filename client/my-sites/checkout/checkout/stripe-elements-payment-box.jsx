@@ -15,6 +15,10 @@ import { StripeProvider, Elements, injectStripe, CardElement } from 'react-strip
 import notices from 'notices';
 import wpcom from 'lib/wp';
 import { paymentMethodClassName } from 'lib/cart-values';
+import { hasRenewableSubscription } from 'lib/cart-values/cart-items';
+import TermsOfService from './terms-of-service';
+import DomainRegistrationRefundPolicy from './domain-registration-refund-policy';
+import DomainRegistrationAgreement from './domain-registration-agreement';
 
 const debug = debugFactory( 'calypso:stripe-elements-payment-box' );
 
@@ -87,7 +91,7 @@ async function sendStripePaymentMethodToStore( {
 	return wpcom.undocumented().transactions( 'POST', dataForApi );
 }
 
-function StripeElementsForm( { translate, stripe, cart, transaction } ) {
+function StripeElementsForm( { translate, stripe, cart, transaction, children } ) {
 	const [ cardholderName, setCardholderName ] = useState( '' );
 	const onNameChange = event => setCardholderName( event.target.value );
 	const handleSubmit = event => {
@@ -132,25 +136,32 @@ function StripeElementsForm( { translate, stripe, cart, transaction } ) {
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add country
 	// TODO: add subscription length toggle
-	// TODO: add TOS
 	// TODO: add chat help link
 	return (
 		<form onSubmit={ handleSubmit }>
-			<label>
-				{ cardholderNameLabel }
-				<input
-					type="text"
-					placeholder="Jane Doe"
-					value={ cardholderName }
-					onChange={ onNameChange }
-					required
-				/>
-			</label>
-			<label>
-				{ cardDetailsLabel }
-				<CardElement />
-			</label>
-			<button className="stripe-elements-payment-box__pay-button">{ payButtonLabel }</button>
+			<div>
+				<label>
+					{ cardholderNameLabel }
+					<input
+						type="text"
+						placeholder="Jane Doe"
+						value={ cardholderName }
+						onChange={ onNameChange }
+						required
+					/>
+				</label>
+				<label>
+					{ cardDetailsLabel }
+					<CardElement />
+				</label>
+				<button className="stripe-elements-payment-box__pay-button">{ payButtonLabel }</button>
+			</div>
+
+			{ children }
+
+			<TermsOfService hasRenewableSubscription={ hasRenewableSubscription( cart ) } />
+			<DomainRegistrationRefundPolicy cart={ cart } />
+			<DomainRegistrationAgreement cart={ cart } />
 		</form>
 	);
 	/* eslint-enable jsx-a11y/label-has-associated-control */
