@@ -13,6 +13,8 @@ import { StripeProvider, Elements, injectStripe, CardElement } from 'react-strip
  * Internal dependencies
  */
 import notices from 'notices';
+import wpcom from 'lib/wp';
+import { paymentMethodClassName } from 'lib/cart-values';
 
 const debug = debugFactory( 'calypso:stripe-elements-payment-box' );
 
@@ -42,7 +44,17 @@ function useStripeJs( url, apiKey ) {
 	return stripeJs;
 }
 
-async function submitPaymentForm( stripe, paymentDetails ) {
+async function submitPaymentForm( { stripe, paymentDetails, cart, transaction } ) {
+	const stripePaymentMethod = await createStripePaymentMethod( stripe, paymentDetails );
+	return sendStripePaymentMethodToStore( {
+		cart,
+		transaction,
+		paymentDetails,
+		stripePaymentMethod,
+	} );
+}
+
+async function createStripePaymentMethod( stripe, paymentDetails ) {
 	debug( 'creating payment method...', paymentDetails );
 	const { paymentMethod, error } = await stripe.createPaymentMethod( 'card', {
 		billing_details: paymentDetails,
@@ -52,20 +64,56 @@ async function submitPaymentForm( stripe, paymentDetails ) {
 		// Note that this is a promise rejection
 		throw new Error( error.message );
 	}
-	// TODO: send paymentMethod to server
+	return paymentMethod;
 }
 
-function StripeElementsForm( { translate, stripe, cart } ) {
+async function sendStripePaymentMethodToStore( {
+	cart,
+	transaction,
+	paymentDetails,
+	stripePaymentMethod,
+} ) {
+	const dataForApi = {
+		stripePaymentMethod, // TODO: the API does not accept this yet
+		payment: Object.assign( {}, paymentDetails, {
+			paymentMethod: paymentMethodClassName( 'stripe' ),
+			successUrl: '/',
+			cancelUrl: '/',
+		} ),
+		cart,
+		domain_details: transaction.domainDetails,
+	};
+
+	return wpcom.undocumented().transactions( 'POST', dataForApi );
+}
+
+function StripeElementsForm( { translate, stripe, cart, transaction } ) {
 	const [ cardholderName, setCardholderName ] = useState( '' );
 	const onNameChange = event => setCardholderName( event.target.value );
 	const handleSubmit = event => {
 		event.preventDefault();
-		submitPaymentForm( stripe, {
-			name: cardholderName,
-		} ).catch( error => {
-			debug( 'error while submitting payment', error );
-			notices.error( error.toString() );
-		} );
+		submitPaymentForm( {
+			stripe,
+			cart,
+			transaction,
+			paymentDetails: {
+				name: cardholderName,
+			},
+		} )
+			.then( result => {
+				if ( result.redirect_url ) {
+					notices.success(
+						translate( 'Redirecting you to the payment partner to complete the payment.' )
+					);
+					window.location.href = result.redirect_url;
+				}
+				// TODO: what if there is no redirect_url?
+			} )
+			.catch( error => {
+				const errorMessage =
+					error.message || translate( "We've encountered a problem. Please try again later." );
+				notices.error( errorMessage );
+			} );
 	};
 	const cardholderNameLabel = translate( 'Cardholder Name {{span}}(as written on card){{/span}}', {
 		comment: 'Cardholder name label on credit card form',
