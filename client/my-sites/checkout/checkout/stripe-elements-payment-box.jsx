@@ -21,6 +21,7 @@ import CheckoutTerms from './checkout-terms';
 import { isWpComBusinessPlan, isWpComEcommercePlan } from 'lib/plans';
 import PaymentChatButton from './payment-chat-button';
 import SubscriptionText from './subscription-text';
+import PaymentCountrySelect from 'components/payment-country-select';
 
 const debug = debugFactory( 'calypso:stripe-elements-payment-box' );
 
@@ -99,6 +100,7 @@ function StripeElementsForm( {
 	cart,
 	transaction,
 	children,
+	countriesList,
 	presaleChatAvailable,
 } ) {
 	// TODO: allow disabling the payment button during processing or when not ready
@@ -146,9 +148,10 @@ function StripeElementsForm( {
 		overSome( isWpComBusinessPlan, isWpComEcommercePlan )( product_slug )
 	);
 	const showPaymentChatButton = presaleChatAvailable && hasBusinessPlanInCart;
+	const [ , setCountry ] = useState( { name: null, countryCode: null } );
+	const updateCountry = ( name, countryCode ) => setCountry( { name, countryCode } );
 
 	/* eslint-disable jsx-a11y/label-has-associated-control */
-	// TODO: add country
 	return (
 		<form onSubmit={ handleSubmit }>
 			<div>
@@ -166,6 +169,14 @@ function StripeElementsForm( {
 					{ cardDetailsLabel }
 					<CardElement />
 				</label>
+				<PaymentCountrySelect
+					additionalClasses="checkout-field"
+					name="country"
+					label={ translate( 'Country', { textOnly: true } ) }
+					countriesList={ countriesList }
+					onCountrySelected={ updateCountry }
+					eventFormName="Checkout Form"
+				/>
 			</div>
 
 			{ children }
