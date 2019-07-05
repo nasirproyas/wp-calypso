@@ -98,8 +98,15 @@ class CancelPurchaseForm extends React.Component {
 		};
 	}
 
+	recordClickRadioEvent = ( option, value ) =>
+		this.props.recordTracksEvent( 'calypso_purchases_cancel_form_select_radio_option', {
+			option,
+			value,
+		} );
+
 	onRadioOneChange = event => {
-		this.props.clickRadio( 'radio_1', event.currentTarget.value );
+		this.recordClickRadioEvent( 'radio_1', event.currentTarget.value );
+
 		const newState = {
 			...this.state,
 			questionOneRadio: event.currentTarget.value,
@@ -119,7 +126,8 @@ class CancelPurchaseForm extends React.Component {
 	};
 
 	onRadioTwoChange = event => {
-		this.props.clickRadio( 'radio_2', event.currentTarget.value );
+		this.recordClickRadioEvent( 'radio_2', event.currentTarget.value );
+
 		const newState = {
 			...this.state,
 			questionTwoRadio: event.currentTarget.value,
@@ -340,11 +348,15 @@ class CancelPurchaseForm extends React.Component {
 		);
 	};
 
+	recordClickConciergeEvent = () =>
+		this.props.recordTracksEvent( 'calypso_purchases_cancel_form_concierge_click' );
+
 	openConcierge = () => {
 		if ( ! this.props.selectedSite ) {
 			return;
 		}
-		this.props.clickConcierge();
+		this.recordClickConciergeEvent();
+
 		return window.open( `/me/concierge/${ this.props.selectedSite.slug }/book` );
 	};
 
@@ -554,15 +566,7 @@ export default connect(
 		isChatActive: hasActiveHappychatSession( state ),
 		precancellationChatAvailable: isPrecancellationChatAvailable( state ),
 	} ),
-	dispatch => ( {
-		clickRadio: ( option, value ) =>
-			dispatch(
-				recordTracksEvent( 'calypso_purchases_cancel_form_select_radio_option', {
-					option: option,
-					value: value,
-				} )
-			),
-		clickConcierge: () =>
-			dispatch( recordTracksEvent( 'calypso_purchases_cancel_form_concierge_click' ) ),
-	} )
+	{
+		recordTracksEvent,
+	}
 )( localize( CancelPurchaseForm ) );
