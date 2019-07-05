@@ -149,7 +149,6 @@ function StripeElementsForm( {
 
 	/* eslint-disable jsx-a11y/label-has-associated-control */
 	// TODO: add country
-	// TODO: add subscription length toggle
 	return (
 		<form onSubmit={ handleSubmit }>
 			<div>
@@ -176,10 +175,9 @@ function StripeElementsForm( {
 			<div className="checkout__payment-box-actions">
 				<div className="checkout__payment-box-buttons">
 					<span className="checkout__pay-button">
-						<button
-							type="submit"
-							className="checkout__pay-button-button button is-primary "
-						>{ payButtonLabel }</button>
+						<button type="submit" className="checkout__pay-button-button button is-primary ">
+							{ payButtonLabel }
+						</button>
 						<SubscriptionText cart={ cart } />
 					</span>
 
@@ -190,9 +188,7 @@ function StripeElementsForm( {
 						</div>
 					</div>
 
-					{ showPaymentChatButton && (
-						<PaymentChatButton paymentType="stripe" cart={ cart } />
-					) }
+					{ showPaymentChatButton && <PaymentChatButton paymentType="stripe" cart={ cart } /> }
 				</div>
 			</div>
 		</form>
@@ -202,12 +198,29 @@ function StripeElementsForm( {
 
 const InjectedStripeElementsForm = injectStripe( StripeElementsForm );
 
-export function StripeElementsPaymentBox( { translate, cart } ) {
+export function StripeElementsPaymentBox( {
+	translate,
+	cart,
+	children,
+	selectedSite,
+	countriesList,
+	redirectTo,
+	presaleChatAvailable,
+} ) {
 	const stripeJs = useStripeJs( stripeJsUrl, stripeApiKey );
 	return (
 		<StripeProvider stripe={ stripeJs }>
 			<Elements>
-				<InjectedStripeElementsForm translate={ translate } cart={ cart } />
+				<InjectedStripeElementsForm
+					translate={ translate }
+					cart={ cart }
+					selectedSite={ selectedSite }
+					countriesList={ countriesList }
+					redirectTo={ redirectTo }
+					presaleChatAvailable={ presaleChatAvailable }
+				>
+					{ children }
+				</InjectedStripeElementsForm>
 			</Elements>
 		</StripeProvider>
 	);
