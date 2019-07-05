@@ -51,14 +51,12 @@ import './style.scss';
 
 class CancelPurchaseForm extends React.Component {
 	static propTypes = {
-		chatInitiated: PropTypes.func.isRequired,
 		defaultContent: PropTypes.node.isRequired,
 		purchase: PropTypes.object.isRequired,
 		selectedSite: PropTypes.shape( { slug: PropTypes.string.isRequired } ),
 		isVisible: PropTypes.bool,
 		onInputChange: PropTypes.func.isRequired,
 		onClose: PropTypes.func.isRequired,
-		onStepChange: PropTypes.func.isRequired,
 		onClickFinalConfirm: PropTypes.func.isRequired,
 		flowType: PropTypes.string.isRequired,
 		showSurvey: PropTypes.bool.isRequired,
@@ -394,8 +392,13 @@ class CancelPurchaseForm extends React.Component {
 		);
 	};
 
+	onChatInitiated = () => {
+		this.recordEvent( 'calypso_purchases_cancel_form_chat_initiated' );
+		this.closeDialog();
+	};
+
 	renderLiveChat = () => {
-		const { chatInitiated, purchase, translate } = this.props;
+		const { purchase, translate } = this.props;
 		const productName = getName( purchase );
 		return (
 			<FormFieldset>
@@ -409,7 +412,7 @@ class CancelPurchaseForm extends React.Component {
 						}
 					) }
 				</p>
-				<HappychatButton primary borderless={ false } onClick={ chatInitiated }>
+				<HappychatButton primary borderless={ false } onClick={ this.onChatInitiated }>
 					{ translate( 'Start a Live chat' ) }
 				</HappychatButton>
 			</FormFieldset>
@@ -500,7 +503,6 @@ class CancelPurchaseForm extends React.Component {
 		);
 		const newStep = stepFunction( this.state.surveyStep, allSteps );
 
-		this.props.onStepChange( newStep );
 		this.setState( { surveyStep: newStep } );
 
 		this.recordEvent( 'calypso_purchases_cancel_survey_step', { new_step: newStep } );
