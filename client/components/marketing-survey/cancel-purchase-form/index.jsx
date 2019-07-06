@@ -65,6 +65,8 @@ class CancelPurchaseForm extends React.Component {
 	};
 
 	static defaultProps = {
+		defaultContent: '',
+		onInputChange: () => {},
 		showSurvey: true,
 		isVisible: false,
 		extraPrependedButtons: [],
