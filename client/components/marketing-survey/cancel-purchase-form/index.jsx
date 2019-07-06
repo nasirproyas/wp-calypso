@@ -523,10 +523,13 @@ class CancelPurchaseForm extends React.Component {
 	};
 
 	getStepButtons = () => {
-		const { translate } = this.props;
+		const { flowType, translate } = this.props;
 		const close = {
 				action: 'close',
-				label: translate( "I'll Keep It" ),
+				label:
+					flowType === 'cancel_autorenew_survey_only'
+						? translate( 'Skip' )
+						: translate( "I'll Keep It" ),
 			},
 			next = {
 				action: 'next',
@@ -552,14 +555,26 @@ class CancelPurchaseForm extends React.Component {
 				label: translate( 'Remove Now' ),
 				onClick: this.onSubmit,
 				isPrimary: true,
+			},
+			submit = {
+				action: 'submit',
+				disabled: this.state.isSubmitting,
+				label: translate( 'Submit' ),
+				onClick: this.onSubmit,
+				isPrimary: true,
 			};
 
 		const firstButtons = [ ...this.props.extraPrependedButtons, close ];
 
 		if ( this.state.surveyStep === steps.FINAL_STEP ) {
-			return firstButtons.concat(
-				this.props.flowType === 'remove' ? [ prev, remove ] : [ prev, cancel ]
-			);
+			switch ( flowType ) {
+				case 'remove':
+					return firstButtons.concat( [ prev, remove ] );
+				case 'cancel_autorenew_survey_only':
+					return firstButtons.concat( [ prev, submit ] );
+				default:
+					return firstButtons.concat( [ prev, cancel ] );
+			}
 		}
 
 		return firstButtons.concat(
